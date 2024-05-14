@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth.routes.js';
 import messageRoutes from './routes/message.routes.js';
-import userRoutes from './routes/user.routes.js';
+import conversationRoutes from './routes/conversation.routes.js';
 import protectRoute from './middleware/protectRoute.js';
 
 import connectMongo from './mongoDb/connect.js';
@@ -21,7 +21,7 @@ server.use(cookieParser());
 
 server.use('/api/auth', authRoutes);
 server.use('/api/message', protectRoute, messageRoutes);
-server.use('/api/user', protectRoute, userRoutes);
+server.use('/api/conversation', protectRoute, conversationRoutes);
 
 server.listen(PORT, ()=> {
     connectMongo();
