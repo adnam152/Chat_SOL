@@ -23,7 +23,6 @@ function MessageContainer() {
                 <Message {...sendProps} />
                 <Message {...receiveProps} />
                 <Message {...receiveProps} />
-
                 <Message {...sendProps} text="Hello" />
             </div>
 

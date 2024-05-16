@@ -49,7 +49,7 @@ const signup = async (req, res) => {
         const existingUser = await User.findOne({username});
         if(existingUser) {
             console.log("User already exists");
-            return res.status(400).json({message: "User already exists"});
+            return res.status(409).json({message: "User already exists"});
         }
         // Hash Password
         const salt = await bcrypt.genSalt(10);
