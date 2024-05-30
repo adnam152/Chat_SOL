@@ -1,13 +1,12 @@
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+import { getSocketId, io } from "../socket/socket.js";
 
 const sendMessage = async (req, res) => {
     try {
         const { message } = req.body;
         const receiverId = req.params.id;
         const senderId = req.user._id.toString();
-        // console.log("Sender ID: ", senderId);
-        // console.log("Receiver ID: ", receiverId);
 
         if(!message || !receiverId || !senderId) return res.status(400).json({ message: "All fields are required" });
         if(senderId === receiverId) return res.status(400).json({ message: "You cannot send message to yourself" });
@@ -24,13 +23,23 @@ const sendMessage = async (req, res) => {
             });
         }
         // Create new message
-        const newMessage = new Message({senderId, receiverId, message});
-        if(newMessage){
+        const createMessage = new Message({senderId, receiverId, message});
+        if(createMessage){
             // Add message to conversation
-            conversation.messages.push(newMessage._id);
+            conversation.messages.push(createMessage._id);
         }
-        await Promise.all([newMessage.save(), conversation.save()]);
+        console.log("Create Message: ", createMessage);
+        // Save message and conversation
+        await Promise.all([createMessage.save(), conversation.save()]);
+        const newMessage = await Message.findById(createMessage._id).populate();
         res.status(201).json(newMessage);
+
+        // Socket
+        const socketId = getSocketId(receiverId);
+        if(socketId) {
+            io.to(socketId).emit('newMessage', newMessage);
+        }
+
     }
     catch (error) {
         console.log("Error: ", error.message);
@@ -46,7 +55,12 @@ const getMessages = async (req, res) => {
             members: {
                 $all: [senderId, receiverId]
             }
-        }).populate("messages");
+        }).populate({
+            path: "messages",
+            options: {
+                sort: { createdAt: -1 }
+            }
+        });
 
         if(!conversation) return res.status(200).json([]);
         res.status(200).json(conversation.messages);

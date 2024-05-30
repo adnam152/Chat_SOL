@@ -95,4 +95,5 @@ const logout = (req, res) => {
     }
 }
 
+
 export default { login, signup, logout };

@@ -1,11 +1,13 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import useSignUp from '../../hooks/useSignUp.js'
-import { useAuthContext } from '../../context/AuthContext.jsx'
+import useSignUp from '../hooks/useSignUp.js'
+import { useAuthContext } from '../context/AuthContext.jsx';
+import { useLoadingContext } from '../context/LoadingContext.jsx';
 
-function Signup() {
-    const { authUser, setAuthUser } = useAuthContext();
+function SignupElement() {
+    const { setAuthUser } = useAuthContext();
+    const { setLoading } = useLoadingContext();
     const [inputs, setInputs] = useState({
         fullname: '',
         gender: 'female',
@@ -16,8 +18,8 @@ function Signup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const signUp = useSignUp(setAuthUser);
-        await signUp(inputs);
+        const signUp = useSignUp(setAuthUser, setLoading);
+        signUp(inputs);
     }
 
     return (
@@ -80,4 +82,4 @@ function Signup() {
     )
 }
 
-export default Signup
+export default SignupElement

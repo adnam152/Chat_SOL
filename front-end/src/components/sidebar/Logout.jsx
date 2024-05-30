@@ -1,26 +1,16 @@
 import React from 'react';
 import { CiLogout } from "react-icons/ci";
 import { useAuthContext } from '../../context/AuthContext.jsx';
-import toast from 'react-hot-toast';
-import authModels from '../../models/auth.model.js';
+import useLogout from '../../hooks/useLogout.js';
+import { useLoadingContext } from '../../context/LoadingContext.jsx';
 
 function Logout() {
-    const { authUser, setAuthUser } = useAuthContext();
+    const { setAuthUser } = useAuthContext();
+    const { setLoading } = useLoadingContext();
     // Event handler for logout
     const handleLogout = async () => {
-        try {
-            const res = await authModels.logout();
-            if(res.status === 200){
-                // Remove user data from local storage
-                localStorage.removeItem('auth-user');
-                // Remove user data from context
-                setAuthUser(null);
-                toast.success(res.data.message);
-            }
-        }
-        catch (error) {
-            console.log(error);
-        }
+        const logout = useLogout(setAuthUser, setLoading);
+        logout();
     }
 
     return (

@@ -9,5 +9,8 @@ export default {
     },
     async logout() {
         return await axios.post('http://localhost:5000/api/auth/logout');
+    },
+    async checkLogin(){
+        return await axios.get('http://localhost:5000/api/check');
     }
 }

@@ -7,9 +7,9 @@ const useHomeContext = () => {
 }
 
 const HomeContextProvider = ({ children }) => {
-    const [isSelectedChat, setSelectedChat] = useState(false);
+    const [selectedChat, setSelectedChat] = useState(null);
     return(
-        <HomeContext.Provider value={{ isSelectedChat, setSelectedChat }}>
+        <HomeContext.Provider value={{ selectedChat, setSelectedChat }}>
             {children}
         </HomeContext.Provider>
     )

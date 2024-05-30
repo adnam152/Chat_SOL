@@ -10,6 +10,13 @@ const protectRoute = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         if(!decoded) return res.status(401).json({message: "Unauthorized Access - Invalid Token"});
 
+        // Check expired token
+        if(Date.now() >= decoded.exp * 1000) {
+            // Clear cookie
+            res.clearCookie("auth_token");
+            return res.status(401).json({message: "Unauthorized Access - Token Expired"});
+        }
+
         // Get user
         const user = await User.findById(decoded.id).select("-password");
         req.user = user;
