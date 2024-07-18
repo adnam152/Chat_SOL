@@ -33,7 +33,7 @@ function Message({ message, oppositeUser }) {
                 </div>
             </div>
             <div
-                className='chat-bubble'
+                className={`chat-bubble ${isSender ? 'bg-indigo-700 text-white' : ''}`}
                 onClick={toggleTime}
             >
                 {message.message}

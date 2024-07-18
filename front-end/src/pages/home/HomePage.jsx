@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CiLogout } from "react-icons/ci";
 import authAPI from '../../API/auth';
 import conversationAPI from '../../API/conversation';
 import { useAuthContext } from '../../contextProvider/useAuthContext';
+import { useSocketContext } from '../../contextProvider/useSocketContext';
 import toast from 'react-hot-toast';
 import Conversation from '../../components/Conversation';
 import Search from '../../components/Search';
@@ -13,6 +14,7 @@ export default function HomePage() {
     const { logout } = authAPI();
     const { getConversation, searchConversation, setReadLastMessage } = conversationAPI();
     const { setAuthUser } = useAuthContext();
+    const { socket, onlineUsers } = useSocketContext();
 
     const [conversations, setConversations] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
@@ -34,33 +36,28 @@ export default function HomePage() {
         getConversationData();
     }, []);
 
-    // Change selectedconversation
+    // Change selectedconversation - Set isRead
     useEffect(() => {
-        // Change Bg
-        selectedConversation?.targetElement?.classList.add('bg-sky-600');
-
-        // Set isRead
-        if (selectedConversation 
-            && !selectedConversation?.conversation.isRead 
+        if (selectedConversation
+            && !selectedConversation?.conversation.isRead
             && selectedConversation?.conversation.lastMessage.senderId === selectedConversation?.conversation.oppositeUser._id
-        ){
+        ) {
             setReadLastMessage(selectedConversation.conversation._id)
-                .then(res => {
-                    console.log(res);
+                .then(() => {
+                    setConversations((prevConversations) => {
+                        const newConversations = [...prevConversations];
+                        const index = newConversations.findIndex(cvs => cvs._id === selectedConversation.conversation._id);
+                        if (index !== -1) {
+                            newConversations[index].isRead = true;
+                        }
+                        return newConversations;
+                    });
                 })
                 .catch(error => {
                     console.log(error);
                 });
         }
-
     }, [selectedConversation]);
-    // Delete selectedconversation when conversations change
-    useEffect(() => {
-        setSelectedConversation((cvs) => {
-            method_SetSelectedConversation(cvs);
-            return null;
-        });
-    }, [conversations])
 
     // Event Handlers
     const onLogout = async () => {
@@ -73,7 +70,7 @@ export default function HomePage() {
             toast.error(error.response.data.message || 'Logout failed');
         }
     }
-    const onSelectConversation = useCallback((conversation, e) => {
+    const onSelectConversation = (conversation, e) => {
         setSelectedConversation((cvs) => {
             method_SetSelectedConversation(cvs);
             return {
@@ -81,7 +78,7 @@ export default function HomePage() {
                 conversation
             }
         });
-    }, []);
+    };
     const onSubmitForm = async (input, e) => {
         e.preventDefault();
         try {
@@ -104,6 +101,29 @@ export default function HomePage() {
         }
     }
 
+    // Socket get new message
+    useEffect(() => {
+        if (socket) {
+            socket.on('newMessage', (data) => {
+                // Noti new message
+                setConversations((prevConversations) => {
+                    const newConversations = [...prevConversations];
+                    const index = newConversations.findIndex(cvs => cvs._id === data.conversation_id);
+                    if (index !== -1) {
+                        newConversations[index].lastMessage = data.lastMessage;
+                        newConversations[index].isRead = false;
+                    }
+                    return newConversations;
+                })
+            })
+        }
+        return () => {
+            if (socket) {
+                socket.off('newMessage');
+            }
+        }
+    }, [socket])
+
     // Method
     const method_SetSelectedConversation = (prevConversation) => {
         if (prevConversation) {
@@ -119,10 +139,13 @@ export default function HomePage() {
 
                 <div className='mt-2 flex-1 overflow-y-auto custom-scrollbar pe-3 border-b border-info'>
                     {conversations.map(conversation => {
+                        const isOnline = onlineUsers.includes(conversation.oppositeUser._id);
                         return <Conversation
-                            key={conversation._id}
+                            key={`${conversation.lastMessage?._id || conversation._id}`}
                             conversation={conversation}
                             onSelectConversation={onSelectConversation}
+                            isOnline={isOnline}
+                            isSelected={selectedConversation?.conversation?._id === conversation._id}
                         />
                     })}
                 </div>

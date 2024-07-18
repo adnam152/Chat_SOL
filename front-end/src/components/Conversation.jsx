@@ -1,19 +1,18 @@
 import React from 'react'
 
 
-const Conversation = React.memo(({ conversation, onSelectConversation }) => {
-    console.log(conversation);
+const Conversation = ({ conversation, onSelectConversation, isOnline, isSelected }) => {
     let isRead = true;
     const oppositeUser = conversation.oppositeUser;
-    if(conversation?.lastMessage?.senderId === oppositeUser._id && !conversation.isRead) {
+    if (conversation?.lastMessage?.senderId === oppositeUser._id && !conversation.isRead) {
         isRead = false;
     }
 
     return (
-        <div className='border-b border-gray-400 mt-2 flex items-center p-3 w-72 hover:bg-sky-600 cursor-pointer select-conversation'
+        <div className={`border-b border-gray-400 mt-2 flex items-center p-3 w-72 hover:bg-sky-600 cursor-pointer select-conversation ${isSelected ? 'bg-sky-600' : ''}`}
             onClick={(event) => onSelectConversation(conversation, event)}
         >
-            <div className="avatar">
+            <div className={`avatar ${isOnline ? 'online' : ''}`}>
                 <div className="w-8 h-8 rounded-full">
                     <img src={oppositeUser.profilePicture} />
                 </div>
@@ -29,6 +28,6 @@ const Conversation = React.memo(({ conversation, onSelectConversation }) => {
             </span>
         </div>
     )
-})
+}
 
 export default Conversation;

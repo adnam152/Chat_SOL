@@ -39,7 +39,10 @@ const sendMessage = async (req, res) => {
         // SOCKET
         const socketId = getSocketId(receiverId);
         if(socketId) {
-            io.to(socketId).emit('newMessage', lastMessage);
+            io.to(socketId).emit('newMessage', {
+                lastMessage,
+                conversation_id: conversation._id
+            });
         }
 
     }

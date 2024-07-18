@@ -3,13 +3,15 @@ import { RiSendPlaneLine } from 'react-icons/ri';
 import messageAPI from '../API/message';
 import Message from './Message';
 import { LoaderIcon } from 'react-hot-toast';
+import { useSocketContext } from '../contextProvider/useSocketContext';
 
 function ChatSelected({ selectedConversation }) {
     const oppositeUser = selectedConversation.conversation.oppositeUser;
     const { getMessages, sendMessage } = messageAPI();
     const [input, setInput] = useState('');
-    const [messages, setMessages] = useState([]);
     const [isSending, setIsSending] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const {socket} = useSocketContext();
 
     // Get Message
     useEffect(() => {
@@ -47,6 +49,22 @@ function ChatSelected({ selectedConversation }) {
             setIsSending(false);
         }
     }
+
+    // Socket
+    useEffect(() => {
+        if (socket) {
+            socket.on('newMessage', (data) => {
+                if(data.conversation_id === selectedConversation.conversation._id){
+                    setMessages((prevMess) => [data.lastMessage, ...prevMess]);
+                }
+            })
+        }
+        return () => {
+            if (socket) {
+                socket.off('newMessage');
+            }
+        }
+    }, []);
 
     return (
         <div className='h-full flex flex-col'>
