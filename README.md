@@ -1,7 +1,1 @@
-Chat App Project - MERN
-
-
-GET
-POST
-PUT
-DELETE
+#[Link Demo](https://chat-app-7fri.onrender.com/)
