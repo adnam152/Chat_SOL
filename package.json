@@ -1,9 +1,11 @@
 {
-  "name": "_mern-chatapp",
+  "name": "mern-chatapp",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "server": "nodemon back-end/server.js"
+    "server": "nodemon back-end/server.js",
+    "start": "node back-end/server.js",
+    "build": "npm install && npm install --prefix front-end && npm run build --prefix front-end"
   },
   "type": "module",
   "keywords": [],

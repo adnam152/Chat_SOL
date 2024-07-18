@@ -1,25 +1,31 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { useState } from 'react'
-import useSignUp from '../hooks/useSignUp.js'
-import { useAuthContext } from '../context/AuthContext.jsx';
-import { useLoadingContext } from '../context/LoadingContext.jsx';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
+import authAPI from '../../API/auth';
+import { useAuthContext } from '../../contextProvider/useAuthContext';
 
-function SignupElement() {
+function SignupPage() {
+    const [inputs, setInputs] = useState({ fullname: '', gender: 'male', username: '', password: '', confirmPassword: '' });
+    const { signup } = authAPI();
     const { setAuthUser } = useAuthContext();
-    const { setLoading } = useLoadingContext();
-    const [inputs, setInputs] = useState({
-        fullname: '',
-        gender: 'female',
-        username: '',
-        password: '',
-        confirmPassword: ''
-    })
 
-    const handleSubmit = async (e) => {
+    // Event Handlers
+    const onInputChange = (e) => {
+        setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    }
+    const onSubmitForm = async (e) => {
         e.preventDefault();
-        const signUp = useSignUp(setAuthUser, setLoading);
-        signUp(inputs);
+        if (!validate(inputs)) return;
+        try {
+            const res = await signup(inputs);
+            if (res) {
+                toast.success('Signup successfully');
+                const user = res.user;
+                setAuthUser(user);
+            }
+        } catch (error) {
+            toast.error(error.response.data.message || 'Signup failed');
+        }
     }
 
     return (
@@ -27,20 +33,22 @@ function SignupElement() {
             <h1 className='font-semibold p-4 text-3xl text-center'>
                 Sign Up <span className='text-blue-500'>Chat App</span>
             </h1>
-            <form action="" onSubmit={handleSubmit}>
+            <form action="" method='post'
+                onSubmit={onSubmitForm}
+            >
                 <div className='mt-2'>
                     <label htmlFor="fullname" className='label px-2 py-1'>Full Name</label>
                     <input type="text" id='fullname' placeholder='Enter Fullname' className='input input-bordered w-full h-10 bg-black bg-opacity-70'
-                        value={inputs.fullname}
-                        onChange={(e) => setInputs({ ...inputs, fullname: e.target.value })}
+                        value={inputs.fullname} name='fullname'
+                        onChange={onInputChange}
                     />
                 </div>
 
                 <div className='mt-2'>
                     <label htmlFor="gender" className='label px-2 py-1'>Gender</label>
-                    <select name="" id="gender" className='select w-full h-10 min-h-10 bg-black bg-opacity-70'
-                        value={inputs.gender}
-                        onChange={(e) => setInputs({ ...inputs, gender: e.target.value })}
+                    <select id="gender" className='select w-full h-10 min-h-10 bg-black bg-opacity-70'
+                        value={inputs.gender} name='gender'
+                        onChange={onInputChange}
                     >
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -50,16 +58,16 @@ function SignupElement() {
                 <div className='mt-2'>
                     <label htmlFor="username" className='label px-2 py-1'>Username</label>
                     <input type="text" id='username' placeholder='Enter Username' className='input input-bordered w-full h-10 bg-black bg-opacity-70'
-                        value={inputs.username}
-                        onChange={(e) => setInputs({ ...inputs, username: e.target.value })}
+                        value={inputs.username} name='username'
+                        onChange={onInputChange}
                     />
                 </div>
 
                 <div className='mt-2'>
                     <label htmlFor="password" className='label px-2 py-1'>Password</label>
                     <input type="password" id='password' placeholder='Enter Password' className='input input-bordered w-full h-10 bg-black bg-opacity-70'
-                        value={inputs.password}
-                        onChange={(e) => setInputs({ ...inputs, password: e.target.value })}
+                        value={inputs.password} name='password'
+                        onChange={onInputChange}
                         autoComplete='off'
                     />
                 </div>
@@ -67,8 +75,8 @@ function SignupElement() {
                 <div className='mt-2'>
                     <label htmlFor="confirmPassword" className='label px-2 py-1'>Confirm Password</label>
                     <input type="password" id='confirmPassword' placeholder='Enter Confirm Password' className='input input-bordered w-full h-10 bg-black bg-opacity-70'
-                        value={inputs.confirmPassword}
-                        onChange={(e) => setInputs({ ...inputs, confirmPassword: e.target.value })}
+                        value={inputs.confirmPassword} name='confirmPassword'
+                        onChange={onInputChange}
                         autoComplete='off'
                     />
                 </div>
@@ -82,4 +90,25 @@ function SignupElement() {
     )
 }
 
-export default SignupElement
+export default SignupPage
+
+function validate({ username, password, confirmPassword, fullname, gender }) {
+    if (!username || !password || !confirmPassword || !fullname || !gender) {
+        toast.error('All fields are required');
+        return false;
+    }
+    if (password !== confirmPassword) {
+        toast.error('Password does not match');
+        return false;
+    }
+    if (username.length < 3) {
+        toast.error('Username must be at least 4 characters');
+        return false;
+    }
+    if (password.length < 6) {
+        toast.error('Password must be at least 6 characters');
+        return false;
+    }
+
+    return true;
+}

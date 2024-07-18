@@ -1,1 +1,7 @@
 Chat App Project - MERN
+
+
+GET
+POST
+PUT
+DELETE

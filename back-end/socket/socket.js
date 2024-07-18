@@ -13,6 +13,7 @@ const io = new Server(server, {
 })
 
 // Map to store user and socket id 
+
 const userSocketMap = {};
 
 // Socket Connection
@@ -22,15 +23,15 @@ io.on('connection', (socket) => {
     if(userId != 'undefined') {
         // Store user and socket id
         userSocketMap[userId] = socket.id;
-        console.log("Map User to Socket: ", Object.keys(userSocketMap));
+        // console.log("Users connected: ", userSocketMap);
     }
 
     // Send online users to client
     io.emit('getOnlineUsers', Object.keys(userSocketMap));
 
+    // Disconnect
     socket.on('disconnect', () => {
         delete userSocketMap[userId];
-
         io.emit('getOnlineUsers', Object.keys(userSocketMap));
     });
 });

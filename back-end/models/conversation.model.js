@@ -13,7 +13,15 @@ const conversationSchema = new mongoose.Schema({
             ref: "Message",
             default: []
         }
-    ]
+    ],
+    lastMessage: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Message",
+    },
+    isRead: {
+        type: Boolean,
+        default: true
+    }
 }, {timestamps: true});
 
 const conversation = mongoose.model("Conversation", conversationSchema);

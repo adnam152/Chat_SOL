@@ -17,7 +17,6 @@ const sendMessage = async (req, res) => {
             }
         })
         if (!conversation) {
-            // Create new conversation if it doesn't exist
             conversation = await Conversation.create({
                 members: [senderId, receiverId]
             });
@@ -25,19 +24,22 @@ const sendMessage = async (req, res) => {
         // Create new message
         const createMessage = new Message({senderId, receiverId, message});
         if(createMessage){
-            // Add message to conversation
             conversation.messages.push(createMessage._id);
         }
-        console.log("Create Message: ", createMessage);
-        // Save message and conversation
-        await Promise.all([createMessage.save(), conversation.save()]);
-        const newMessage = await Message.findById(createMessage._id).populate();
-        res.status(201).json(newMessage);
+        await createMessage.save(); // Save message and get lastMessage
+        const lastMessage = await Message.findById(createMessage._id).populate();
 
-        // Socket
+        // add lastMessage to conversation and save
+        conversation.lastMessage = lastMessage;
+        conversation.isRead = false;
+        conversation.save();
+
+        res.status(201).json(lastMessage);
+
+        // SOCKET
         const socketId = getSocketId(receiverId);
         if(socketId) {
-            io.to(socketId).emit('newMessage', newMessage);
+            io.to(socketId).emit('newMessage', lastMessage);
         }
 
     }
