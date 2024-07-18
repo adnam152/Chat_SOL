@@ -14,6 +14,7 @@ import connectMongo from './mongoDb/connect.js';
 
 const __dirname = path.resolve();
 // const server = express();
+
 // Load Environment Variables
 dotenv.config();
 const PORT = process.env.PORT || 5000;
