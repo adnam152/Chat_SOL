@@ -4,7 +4,7 @@ export default function messageAPI() {
     return {
         async getMessages(oppositeUserId) {
             try {
-                const response = await axios.get(`http://localhost:5000/api/message/${oppositeUserId}`);
+                const response = await axios.get(`/api/message/${oppositeUserId}`);
                 return response.data;
             } catch (error) {
                 return Promise.reject(error);
@@ -12,7 +12,7 @@ export default function messageAPI() {
         },
         async sendMessage(oppositeUserId, message) {
             try {
-                const response = await axios.post(`http://localhost:5000/api/message/send/${oppositeUserId}`, { message });
+                const response = await axios.post(`/api/message/send/${oppositeUserId}`, { message });
                 return response.data;
             } catch (error) {
                 return Promise.reject(error);

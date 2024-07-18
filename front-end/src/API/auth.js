@@ -4,7 +4,7 @@ export default function authAPI() {
     return {
         async signup(inputs) {
             try {
-                const response = await axios.put('http://localhost:5000/api/auth/signup', inputs);
+                const response = await axios.put('/api/auth/signup', inputs);
                 return response.data;
             } catch (error) {
                 return Promise.reject(error);
@@ -12,7 +12,7 @@ export default function authAPI() {
         },
         async login(inputs) {
             try {
-                const response = await axios.post('http://localhost:5000/api/auth/login', inputs);
+                const response = await axios.post('/api/auth/login', inputs);
                 return response.data;
             } catch (error) {
                 return Promise.reject(error);
@@ -20,7 +20,7 @@ export default function authAPI() {
         },
         async logout() {
             try {
-                const response = await axios.post('http://localhost:5000/api/auth/logout');
+                const response = await axios.post('/api/auth/logout');
                 return response.data;
             } catch (error) {
                 return Promise.reject(error);
@@ -28,7 +28,7 @@ export default function authAPI() {
         },
         async checkLogin(){
             try {
-                const response = await axios.post('http://localhost:5000/api/check');
+                const response = await axios.post('/api/check');
                 return response.data;
             } catch (error) {
                 return Promise.reject(error);

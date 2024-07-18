@@ -4,7 +4,7 @@ export default function conversationAPI() {
     return {
         async getConversation() {
             try {
-                const response = await axios.get('http://localhost:5000/api/conversation');
+                const response = await axios.get('/api/conversation');
                 return response.data;
             } catch (error) {
                 return Promise.reject(error);
@@ -12,7 +12,7 @@ export default function conversationAPI() {
         },
         async searchConversation(username) {
             try {
-                const response = await axios.get(`http://localhost:5000/api/conversation/search/${username}`);
+                const response = await axios.get(`/api/conversation/search/${username}`);
                 return response.data;
             } catch (error) {
                 return Promise.reject(error);
@@ -20,7 +20,7 @@ export default function conversationAPI() {
         },
         async setReadLastMessage(conversationId) {
             try {
-                await axios.put(`http://localhost:5000/api/conversation/read/${conversationId}`);
+                await axios.put(`/api/conversation/read/${conversationId}`);
             } catch (error) {
                 return Promise.reject(error);
             }
