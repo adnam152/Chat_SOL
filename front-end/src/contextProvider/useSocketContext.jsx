@@ -15,7 +15,7 @@ const SocketProvider = ({ children }) => {
 
     useEffect(() => {
         if (authUser) {
-            const newSocket = io("http://localhost:5000", {
+            const newSocket = io("/", {
                 query: {
                     userId: authUser._id
                 }
