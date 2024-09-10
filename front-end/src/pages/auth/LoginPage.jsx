@@ -7,7 +7,7 @@ import { useAuthContext } from "../../contextProvider/useAuthContext";
 export default function LoginPage() {
     const [inputs, setInputs] = useState({ username: '', password: '' });
     const { login } = authAPI();
-    const {authUser, setAuthUser} = useAuthContext();
+    const { setAuthUser } = useAuthContext();
 
     // Event Handlers
     const onInputChange = (e) => {
@@ -18,13 +18,13 @@ export default function LoginPage() {
         if (!validate(inputs)) return;
         try {
             const res = await login(inputs);
-            if(!res.user){
+            if (!res.user) {
                 throw new Error(res.message);
             }
             setAuthUser(res.user);
             toast.success('Login successful');
         } catch (error) {
-            console.log('ERROR: ', error.response.data.message || error.message);
+            toast.error(error.response.data.message || error.message || 'Login fail');
         }
     }
 

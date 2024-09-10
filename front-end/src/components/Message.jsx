@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useAuthContext } from '../contextProvider/useAuthContext';
 
 function Message({ message, oppositeUser }) {
@@ -13,7 +13,7 @@ function Message({ message, oppositeUser }) {
         const minutes = time.getMinutes();
         const ampm = hours >= 12 ? 'PM' : 'AM';
         const date = time.getDate();
-        const month = time.getMonth();
+        const month = time.getMonth() + 1;
         return `${hours}:${minutes} ${ampm} - ${date}/${month}`;
     }, [message.createdAt]);
 
