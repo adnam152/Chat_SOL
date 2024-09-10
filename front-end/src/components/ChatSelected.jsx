@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RiSendPlaneLine } from 'react-icons/ri';
 import messageAPI from '../API/message';
 import Message from './Message';
-import { LoaderIcon } from 'react-hot-toast';
+import toast, { LoaderIcon } from 'react-hot-toast';
 import { useSocketContext } from '../contextProvider/useSocketContext';
 
 function ChatSelected({ selectedConversation }) {
@@ -43,7 +43,7 @@ function ChatSelected({ selectedConversation }) {
                 setInput('');
             }
         } catch (error) {
-            console.log(error.response.data.message || 'Failed to send message');
+            toast.error(error.response.data.message || 'Failed to send message');
         }
         finally {
             setIsSending(false);
