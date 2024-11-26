@@ -1,30 +1,25 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    password: {
-        type: String,
-        required: true,
-        minlength: 6,
-    },
     fullname: {
         type: String,
         required: true,
     },
-    gender : {
+    walletAddress: {
         type: String,
         required: true,
-        enum : ['male', 'female']
+        unique: true,
     },
-    profilePicture: {
+    gold: {
+        type: Number,
+        default: 1000,
+    },
+    avatar: {
         type: String,
-        default: "",
+        default: "https://res.cloudinary.com/dzkdgm4c7/image/upload/v1731945251/DATN/rxkmkxsqet6xrc2sllry.jpg",
     },
 }, {timestamps: true});
+
 
 const user = mongoose.model("User", userSchema);
 

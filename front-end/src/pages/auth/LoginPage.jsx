@@ -1,77 +1,53 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "react-hot-toast";
-import authAPI from "../../API/auth";
-import { useAuthContext } from "../../contextProvider/useAuthContext";
+import { useLoaderStore } from "../../store/useLoaderStore";
+import { loginWithPhantomWallet } from "../../services/authService";
+import { useAuthStore } from "../../store/useAuthStore";
+import { toast } from "react-toastify";
+
+const getProvider = () => {
+    if ('phantom' in window) {
+        const provider = window.phantom?.solana;
+
+        if (provider?.isPhantom) {
+            return provider;
+        }
+    }
+    window.open('https://phantom.app/', '_blank');
+};
 
 export default function LoginPage() {
-    const [inputs, setInputs] = useState({ username: '', password: '' });
-    const { login } = authAPI();
-    const { setAuthUser } = useAuthContext();
+    const setLoading = useLoaderStore(state => state.setLoading);
+    const setAuthUser = useAuthStore(state => state.setAuthUser);
 
-    // Event Handlers
-    const onInputChange = (e) => {
-        setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    }
-    const onSubmitForm = async (e) => {
-        e.preventDefault();
-        if (!validate(inputs)) return;
+    const phantomWalletLogin = async () => {
+        const provider = getProvider(); // see "Detecting the Provider"
+        setLoading(true);
         try {
-            const res = await login(inputs);
-            if (!res.user) {
-                throw new Error(res.message);
-            }
-            setAuthUser(res.user);
+            // connect to phantom wallet
+            const resp = await provider.connect();
+            console.log(resp);
+            const publicKey = resp.publicKey.toString();
+            if (!publicKey) throw new Error('No address wallet');
+
+            const res = await loginWithPhantomWallet(publicKey);
+            if (!res.data) throw new Error(res.message);
+            setAuthUser(res.data);
             toast.success('Login successful');
-        } catch (error) {
-            toast.error(error.response.data.message || error.message || 'Login fail');
+
+        } catch (err) {
+            // { code: 4001, message: 'User rejected the request.' }
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
-        <div className="w-96 bg-gray-300 rounded-md bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-10 p-5 ">
+        <div className="w-96 bg-gray-300 rounded-md bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-10 p-5 flex flex-col items-center gap-4">
             <h1 className='font-semibold p-4 text-3xl text-center'>
                 Login <span className='text-blue-500'>Chat App</span>
             </h1>
-            <form action="" onSubmit={onSubmitForm}>
-                <div className='mt-2'>
-                    <label htmlFor="username" className='label px-2 py-1'>Username</label>
-                    <input type="text" id='username' placeholder='Enter Username' className='input input-bordered w-full h-10 bg-black bg-opacity-70'
-                        value={inputs.username} name='username'
-                        onChange={onInputChange}
-                    />
-                </div>
 
-                <div className='mt-2'>
-                    <label htmlFor="password" className='label px-2 py-1'>Password</label>
-                    <input type="password" id='password' placeholder='Enter Password' className='input input-bordered w-full h-10 bg-black bg-opacity-70'
-                        autoComplete='off'
-                        value={inputs.password} name='password'
-                        onChange={onInputChange}
-                    />
-                </div>
-
-                <div className='mt-5 mb-2'>
-                    <button className='btn w-full min-h-10 h-10'>Login</button>
-                </div>
-                <Link to="/signup" className='text-sm hover:underline hover:text-blue-500'>Don't have account? Register here</Link>
-            </form>
+            <button className="btn" onClick={phantomWalletLogin}>LOGIN WITH PHANTOM WALLET</button>
         </div>
     )
-}
-
-function validate({ username, password }) {
-    if (username.trim() === '' || password.trim() === '') {
-        toast.error('Please fill all fields');
-        return false;
-    }
-    if (username.length < 3) {
-        toast.error('Username must be at least 4 characters');
-        return false;
-    }
-    if (password.length < 6) {
-        toast.error('Password must be at least 6 characters');
-        return false;
-    }
-    return true;
 }

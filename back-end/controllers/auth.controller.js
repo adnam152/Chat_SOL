@@ -4,96 +4,62 @@ import generateJwt from "../utils/generateJwt.js";
 
 const login = async (req, res) => {
     try {
-        const {username, password} = req.body;
-        const user = await User.findOne({username});
-        const isCorrectPassword = user && await bcrypt.compare(password, user.password);
-        if(!user || !isCorrectPassword) {
-            console.log("Username or password is incorrect");
-            return res.status(400).json({message: "Username or password is incorrect"});
+        const { walletAddress } = req.body;
+        let user = await User.findOne({ walletAddress });
+        if (!user) {
+            // Create new User
+            const newUser = new User({
+                walletAddress,
+                fullname: 'U' + walletAddress.slice(0, 8) + Math.floor(Math.random() * 1000),
+                avatar: `https://res.cloudinary.com/dzkdgm4c7/image/upload/v1731945251/DATN/rxkmkxsqet6xrc2sllry.jpg`,
+            })
+            if (!newUser) {
+                console.log("Error creating user");
+                return res.status(500).json({ message: "Error creating user" });
+            }
+            user = await newUser.save();
         }
         // Generate JWT
         generateJwt(user._id, res);
         // Send response
-        const tempUser = user.toObject();
-        delete tempUser.password;
         res.status(200).json({
             message: "Logged in successfully",
-            user: tempUser,
+            data: user,
         });
-    } 
+    }
     catch (error) {
         console.log("Error Login Controller: ", error.message);
-        res.status(500).json({message: "Error logging in"});
-    }
-}
-
-const signup = async (req, res) => {
-    try {
-        const {username, password, confirmPassword, fullname, gender} = req.body;
-        // Check if all fields are filled
-        if(!username || !password || !confirmPassword || !fullname || !gender) {
-            console.log("Fields are not filled");
-            return res.status(400).json({message: "Please fill in all fields"});
-        }
-        // Check confirm password
-        if(password !== confirmPassword) {
-            console.log("Password doesn't match");
-            return res.status(400).json({message: "Password doesn't match"});
-        }
-        // Check password length
-        if(password.length < 6) {
-            console.log("Password length is less than 6");
-            return res.status(400).json({message: "Password length is less than 6"});
-        }
-        // Check if user already exists
-        const existingUser = await User.findOne({username});
-        if(existingUser) {
-            console.log("User already exists");
-            return res.status(409).json({message: "User already exists"});
-        }
-        // Hash Password
-        const salt = await bcrypt.genSalt(10);
-        const HashedPassword = await bcrypt.hash(password, salt);
-        // Create Profile Picture
-        const profilePictureUrl = `https://avatar.iran.liara.run/username?username=${username}`;
-        // Create new User
-        const newUser = new User({
-            username,
-            password : HashedPassword,
-            fullname,
-            gender,
-            profilePicture: profilePictureUrl,
-        })
-        if(!newUser) {
-            console.log("Error creating user");
-            return res.status(500).json({message: "Error creating user"});
-        }
-        // Generate JWT
-        generateJwt(newUser._id, res);
-        // Save to MongoDB
-        await newUser.save(); 
-        const tempUser = newUser.toObject();
-        delete tempUser.password;
-        res.status(201).json({
-            message: "User created successfully",
-            user: tempUser,
-        });
-    } 
-    catch (error) {
-        console.error("Error Signup Controller: ", error.message);
-        res.status(500).json({message: "Error creating user"});
+        res.status(500).json({ message: "Error logging in" });
     }
 }
 
 const logout = (req, res) => {
     try {
         res.clearCookie("auth_token");
-        res.status(200).json({message: "Logged out successfully"});
+        res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
         console.log("Error Logout Controller: ", error.message);
-        res.status(500).json({message: "Error logging out"});
+        res.status(500).json({ message: "Error logging out" });
     }
 }
 
+const update = async (req, res) => {
+    try {
+        const user = req.user;
+        console.log('user update', user);
+        const { fullname, avatar } = req.body;
+        if (!user) {
+            return res.status(404).json({ message: "No user found" });
+        }
+        user.fullname = fullname;
+        if (avatar) user.avatar = avatar;
+        await user.save();
+        res.status(200).json({ message: "User updated successfully", data: user });
+    }
+    catch (error) {
+        console.log("Error Update Controller: ", error.message);
+        res.status(500).json({ message: "Error updating user" });
+    }
+}
 
-export default { login, signup, logout };
+export default { login, logout, update };

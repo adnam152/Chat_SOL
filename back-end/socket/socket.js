@@ -13,7 +13,6 @@ const io = new Server(server, {
 })
 
 // Map to store user and socket id 
-
 const userSocketMap = {};
 
 // Socket Connection
@@ -26,9 +25,6 @@ io.on('connection', (socket) => {
         // console.log("Users connected: ", userSocketMap);
     }
 
-    // Send online users to client
-    io.emit('getOnlineUsers', Object.keys(userSocketMap));
-
     // Disconnect
     socket.on('disconnect', () => {
         delete userSocketMap[userId];
@@ -37,8 +33,15 @@ io.on('connection', (socket) => {
 });
 
 // Get Socket Id
-const getSocketId = (receiverId) => {
-    return userSocketMap[receiverId];
+const getSocketIds = (listReceiverId) => {
+    // return userSocketMap[receiverId];
+    let socketIds = [];
+    listReceiverId.forEach(receiverId => {
+        if(userSocketMap[receiverId]) {
+            socketIds.push(userSocketMap[receiverId]);
+        }
+    });
+    return socketIds;
 }
 
-export { app, server, getSocketId, io };
+export { app, server, getSocketIds, io };

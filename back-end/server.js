@@ -7,13 +7,15 @@ import path from 'path';
 import { app, server } from './socket/socket.js';
 import authRoutes, { checkLogin } from './routes/auth.routes.js';
 import messageRoutes from './routes/message.routes.js';
-import conversationRoutes from './routes/conversation.routes.js';
-import protectRoute from './middleware/protectRoute.js';
+import chatRoutes from './routes/chat.routes.js';
+import betRoutes from './routes/bet.routes.js';
+import gameRoutes from './routes/game.routes.js';
+import transactionRoutes from './routes/transaction.routes.js';
+import authMiddleware from './middleware/authMiddleware.js';
 
 import connectMongo from './mongoDb/connect.js';
 
 const __dirname = path.resolve();
-// const server = express();
 
 // Load Environment Variables
 dotenv.config();
@@ -22,25 +24,33 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors({
     credentials: true,
-    origin: ["*"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: ["http://localhost:3000"],
 }));
 app.use(express.json());
 app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/message', protectRoute, messageRoutes);
-app.use('/api/conversation', protectRoute, conversationRoutes);
+app.use('/api/chat', authMiddleware, chatRoutes);
+app.use('/api/message', authMiddleware, messageRoutes);
+app.use('/api/game', authMiddleware, gameRoutes);
+app.use('/api/bet', authMiddleware, betRoutes);
 
 // route to check if user is logged in
-app.post('/api/check', protectRoute, checkLogin);
+app.post('/api/check', authMiddleware, checkLogin);
 
+// Transaction routes
+app.use('/api/transaction', authMiddleware, transactionRoutes);
+
+
+// DEPLOY
 // Serve static assets if in production
-app.use(express.static(path.join(__dirname, '/front-end/dist')));
+// app.use(express.static(path.join(__dirname, '/front-end/dist')));
 
-app.get('*', (req,res) => {
-    res.sendFile(path.resolve(__dirname, 'front-end', 'dist', 'index.html'));
-})
+// app.get('*', (req,res) => {
+//     res.sendFile(path.resolve(__dirname, 'front-end', 'dist', 'index.html'));
+// })
 
 
 server.listen(PORT, () => {

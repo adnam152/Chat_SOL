@@ -3,7 +3,8 @@ import { sendMessage, getMessages } from "../controllers/message.controller.js";
 
 const router = express.Router();
 
-router.post('/send/:id', sendMessage);
-router.get('/:id', getMessages);
+router.post('/send/:chatId', sendMessage);
+
+router.get('/get/:chatId', getMessages);
 
 export default router;
