@@ -5,15 +5,17 @@
 - Chủ nhóm:
     - Chat
     - Tạo cuộc đặt cược 
-    - Có thể từ chối đặt cược của thành viên
-    - Chấp nhận rút cược
-    - Kết thúc cuộc đặt cược
     - Xóa thành viên khỏi nhóm
-    - Xem lịch sử đặt cược
 
 - Thành viên:
     - Chat
     - Đặt cược
-    - Rút cược (Nhờ chủ nhóm duyệt)
     - Rời nhóm
-    - Xem lịch sử đặt cược
+ 
+# Cài đặt
+ - npm install
+ - npm start
+## Mở thêm 1 tab terminal mới
+ - cd ./front-end
+ - npm install
+ - npm run dev
