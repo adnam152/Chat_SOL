@@ -5,6 +5,7 @@ import generateJwt from "../utils/generateJwt.js";
 const login = async (req, res) => {
     try {
         const { walletAddress } = req.body;
+        console.log(walletAddress)
         let user = await User.findOne({ walletAddress });
         if (!user) {
             // Create new User

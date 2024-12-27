@@ -16,7 +16,7 @@ import { useSocketStore } from "./store/useSocketStore";
 import { useGameStore } from "./store/useGameStore";
 import GamePlay from "./components/GamePlay";
 
-axios.defaults.baseURL = 'http://localhost:5000';
+// axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
 axios.defaults.timeout = 3000;
 

@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    origin: ["http://localhost:3000"],
+    origin: ["*"],
 }));
 app.use(express.json());
 app.use(cookieParser());
@@ -46,11 +46,11 @@ app.use('/api/transaction', authMiddleware, transactionRoutes);
 
 // DEPLOY
 // Serve static assets if in production
-// app.use(express.static(path.join(__dirname, '/front-end/dist')));
+app.use(express.static(path.join(__dirname, '/front-end/dist')));
 
-// app.get('*', (req,res) => {
-//     res.sendFile(path.resolve(__dirname, 'front-end', 'dist', 'index.html'));
-// })
+app.get('*', (req,res) => {
+    res.sendFile(path.resolve(__dirname, 'front-end', 'dist', 'index.html'));
+})
 
 
 server.listen(PORT, () => {

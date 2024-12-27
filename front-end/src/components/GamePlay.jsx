@@ -141,8 +141,8 @@ function GamePlay() {
             {/* Count down */}
             <div className="flex flex-col gap-10 items-center">
                 <div className="text-xl w-44 text-center">
-                    <div className="font-semibold">GOLD: {authUser?.gold}</div>
-                    <div className="text-lg">AMOUNT: {game?.stakeAmount}</div>
+                    <div className="font-semibold">GOLD: {authUser?.gold.toLocaleString()}</div>
+                    <div className="text-lg">AMOUNT: {game?.stakeAmount.toLocaleString()}</div>
                 </div>
                 <CountDown countDown={countDown} />
 

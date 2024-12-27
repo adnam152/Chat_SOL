@@ -85,7 +85,7 @@ function GroupNav() {
                         <span>SOL: {balance}</span>
                     </p>
                     <p className="text-sm w-max max-auto mt-1 font-semibold flex gap-2">
-                        <span> Gold: {authUser.gold}</span>
+                        <span> Gold: {authUser?.gold?.toLocaleString()}</span>
                     </p>
                     {/* Transfer SOL to Gold */}
                     <p className="text-sm w-max max-auto mt-1 font-semibold flex gap-2">
