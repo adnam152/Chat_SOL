@@ -10,7 +10,7 @@ export const useSocketStore = create((set, get) => ({
         const existingSocket = get().socket;
 
         if (!existingSocket) {
-            const newSocket = io("http://localhost:5000", { query: { userId } });
+            const newSocket = io("/", { query: { userId } });
             set({ socket: newSocket });
 
             newSocket.on("disconnect", () => {
